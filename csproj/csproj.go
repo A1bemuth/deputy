@@ -4,14 +4,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/A1bemuth/deputy"
 )
-
-type Dependency struct {
-	Name    string
-	Version string
-}
 
 // PackageReference represents a ref to a nuget package
 type PackageReference struct {
@@ -43,7 +39,10 @@ func New() Parser {
 	}
 }
 
-// Parse extracts package references
+func (p *Parser) Accepts(filename string) bool {
+	return strings.HasSuffix(filename, ".csproj")
+}
+
 func (p *Parser) Parse(content string) ([]deputy.Dependency, error) {
 	matches := p.regex.FindAllString(content, -1)
 
@@ -69,7 +68,7 @@ func parsePackageRef(xmlStr string) (*PackageReference, error) {
 }
 
 func toDependency(ref PackageReference) deputy.Dependency {
-	return Dependency{
+	return deputy.Dependency{
 		Name:    ref.Name,
 		Version: ref.Version,
 	}

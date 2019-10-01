@@ -1,4 +1,4 @@
-module github.com/A1bemuth/deps-parser
+module github.com/A1bemuth/deputy
 
 go 1.13
 
