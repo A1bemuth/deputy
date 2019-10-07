@@ -21,11 +21,11 @@ func TestParsesValues(t *testing.T) {
 func TestParsesCorrectCount(t *testing.T) {
 	input := `
 		<PackageReference Include="FluentAssertions" Version="5.4.1" />`
-	testParsesCorrectCount(t, input, 1)
+	t.Run("Single entry", testParsesCorrectCount(input, 1))
 	input = `
 		<PackageReference Include="foo" Version="1.0.0" />
 		<PackageReference Include="bar" Version="2.0.0" />`
-	testParsesCorrectCount(t, input, 2)
+	t.Run("Two entries", testParsesCorrectCount(input, 2))
 	input = `
 		<ItemGroup>
 			<PackageReference Include="FluentAssertions" Version="5.4.1" />
@@ -34,22 +34,25 @@ func TestParsesCorrectCount(t *testing.T) {
 			<PackageReference Include="NUnit" Version="3.10.1" />
 			<PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
 		</ItemGroup>`
-	testParsesCorrectCount(t, input, 5)
+	t.Run("Whole ItemGroup", testParsesCorrectCount(input, 5))
 	input = `erence Include="FluentAssertions" Version="5.4.1" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />`
-	testParsesCorrectCount(t, input, 1)
+	t.Run("Partial XML", testParsesCorrectCount(input, 1))
+	//TODO
 	// input = `<PackageReference Include="Microsoft.NET.Test.Sdk">
 	// 	<Version>15.8.0</Version>
 	//  </PackageReference>`
 	// testParsesCorrectCount(t, input, 1)
 }
 
-func testParsesCorrectCount(t *testing.T, input string, expected int) {
-	parser := New()
+func testParsesCorrectCount(input string, expected int) func(t *testing.T) {
+	return func(t *testing.T) {
+		parser := New()
 
-	refs, err := parser.Parse(input)
-	if !assert.Nil(t, err) {
-		return
+		refs, err := parser.Parse(input)
+		if !assert.Nil(t, err) {
+			return
+		}
+		assert.Equal(t, expected, len(refs))
 	}
-	assert.Equal(t, expected, len(refs))
 }

@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/A1bemuth/deputy"
+	"github.com/A1bemuth/deputy/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,7 +17,7 @@ func TestParsesCsproj(t *testing.T) {
 	require.Nil(t, err)
 	require.Len(t, deps, 1)
 	require.Equal(t,
-		deputy.Dependency{Name: "Foo", Version: "1.0.0"},
+		types.Dependency{Name: "Foo", Version: "1.0.0"},
 		deps[0])
 }
 

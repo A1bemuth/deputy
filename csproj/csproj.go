@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/A1bemuth/deputy"
+	"github.com/A1bemuth/deputy/types"
 )
 
 // PackageReference represents a ref to a nuget package
@@ -30,10 +30,7 @@ const packageRefRegex = `(<\s*PackageReference.+?((\/\s*>)|(<\s*\/\s*PackageRefe
 
 // New creates an instance of Parser
 func New() Parser {
-	regex, err := regexp.Compile(packageRefRegex)
-	if err != nil {
-		panic(err)
-	}
+	regex := regexp.MustCompile(packageRefRegex)
 	return Parser{
 		regex: regex,
 	}
@@ -43,10 +40,10 @@ func (p *Parser) Accepts(filename string) bool {
 	return strings.HasSuffix(filename, ".csproj")
 }
 
-func (p *Parser) Parse(content string) ([]deputy.Dependency, error) {
+func (p *Parser) Parse(content string) ([]types.Dependency, error) {
 	matches := p.regex.FindAllString(content, -1)
 
-	deps := make([]deputy.Dependency, 0)
+	deps := make([]types.Dependency, 0)
 	for _, match := range matches {
 		ref, err := parsePackageRef(match)
 		if err != nil {
@@ -67,8 +64,8 @@ func parsePackageRef(xmlStr string) (*PackageReference, error) {
 	return &ref, nil
 }
 
-func toDependency(ref PackageReference) deputy.Dependency {
-	return deputy.Dependency{
+func toDependency(ref PackageReference) types.Dependency {
+	return types.Dependency{
 		Name:    ref.Name,
 		Version: ref.Version,
 	}
