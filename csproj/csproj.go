@@ -23,25 +23,19 @@ type ItemGroup struct {
 
 // Parser helps extract package references from a csproj file or its part
 type Parser struct {
-	regex *regexp.Regexp
 }
 
-const packageRefRegex = `(<\s*PackageReference.+?((\/\s*>)|(<\s*\/\s*PackageReference\s*>)))`
+const ECOSYSTEM = "nuget"
+const PACKAGE_REF_REGEXP = `(<\s*PackageReference.+?((\/\s*>)|(<\s*\/\s*PackageReference\s*>)))`
 
-// New creates an instance of Parser
-func New() Parser {
-	regex := regexp.MustCompile(packageRefRegex)
-	return Parser{
-		regex: regex,
-	}
-}
+var referenceRegex = regexp.MustCompile(PACKAGE_REF_REGEXP)
 
 func (p *Parser) Accepts(filename string) bool {
 	return strings.HasSuffix(filename, ".csproj")
 }
 
 func (p *Parser) Parse(content string) ([]types.Dependency, error) {
-	matches := p.regex.FindAllString(content, -1)
+	matches := referenceRegex.FindAllString(content, -1)
 
 	deps := make([]types.Dependency, 0)
 	for _, match := range matches {
@@ -66,7 +60,8 @@ func parsePackageRef(xmlStr string) (*PackageReference, error) {
 
 func toDependency(ref PackageReference) types.Dependency {
 	return types.Dependency{
-		Name:    ref.Name,
-		Version: ref.Version,
+		Ecosystem: ECOSYSTEM,
+		Name:      ref.Name,
+		Version:   ref.Version,
 	}
 }

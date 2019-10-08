@@ -9,7 +9,7 @@ import (
 
 func TestParsesValues(t *testing.T) {
 	input := `<PackageReference Include="FluentAssertions" Version="5.4.1" />`
-	parser := New()
+	parser := Parser{}
 
 	refs, err := parser.Parse(input)
 	require.Nil(t, err)
@@ -47,7 +47,7 @@ func TestParsesCorrectCount(t *testing.T) {
 
 func testParsesCorrectCount(input string, expected int) func(t *testing.T) {
 	return func(t *testing.T) {
-		parser := New()
+		parser := Parser{}
 
 		refs, err := parser.Parse(input)
 		if !assert.Nil(t, err) {

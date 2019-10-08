@@ -10,7 +10,7 @@ type CompositeParser struct {
 }
 
 func New() CompositeParser {
-	csprojParser := csproj.New()
+	csprojParser := csproj.Parser{}
 	parsers := []Parser{&csprojParser}
 
 	return CompositeParser{

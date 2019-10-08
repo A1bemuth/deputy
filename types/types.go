@@ -8,8 +8,9 @@ var (
 
 // Dependency represents known info about a single dependency
 type Dependency struct {
-	Name    string
-	Version string
+	Ecosystem string
+	Name      string
+	Version   string
 }
 
 // Parser is a tool for extracting dependencies from certain fileTypes,
