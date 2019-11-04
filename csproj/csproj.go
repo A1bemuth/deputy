@@ -2,7 +2,6 @@ package csproj
 
 import (
 	"encoding/xml"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -26,7 +25,7 @@ type Parser struct {
 }
 
 const ECOSYSTEM = "nuget"
-const PACKAGE_REF_REGEXP = `(<\s*PackageReference.+?((\/\s*>)|(<\s*\/\s*PackageReference\s*>)))`
+const PACKAGE_REF_REGEXP = `(?s)(<\s*PackageReference.+?((\/\s*>)|(<\s*\/\s*PackageReference\s*>)))`
 
 var referenceRegex = regexp.MustCompile(PACKAGE_REF_REGEXP)
 
@@ -41,10 +40,11 @@ func (p *Parser) Parse(content string) ([]types.Dependency, error) {
 	for _, match := range matches {
 		ref, err := parsePackageRef(match)
 		if err != nil {
-			fmt.Printf("error parsing ref '%v', err: %v", match, err)
-			continue
+			return nil, err
 		}
-		deps = append(deps, toDependency(*ref))
+		if ref.Name != "" && ref.Version != "" {
+			deps = append(deps, toDependency(*ref))
+		}
 	}
 
 	return deps, nil

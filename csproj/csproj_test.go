@@ -7,6 +7,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestAcceptsCsproj(t *testing.T) {
+	parser := Parser{}
+	testAccepts := func(name string, expected bool) func(t *testing.T) {
+		return func(t *testing.T) {
+			accepts := parser.Accepts(name)
+			assert.Equal(t, expected, accepts)
+		}
+	}
+
+	t.Run("Csproj1", testAccepts("Foo.csproj", true))
+	t.Run("Csproj2", testAccepts("Foo bar.csproj", true))
+	t.Run("Sln1", testAccepts("Foo.sln", false))
+	t.Run("Sln2", testAccepts("Foo.csproj.sln", false))
+}
+
 func TestParsesValues(t *testing.T) {
 	input := `<PackageReference Include="FluentAssertions" Version="5.4.1" />`
 	parser := Parser{}
@@ -22,10 +37,18 @@ func TestParsesCorrectCount(t *testing.T) {
 	input := `
 		<PackageReference Include="FluentAssertions" Version="5.4.1" />`
 	t.Run("Single entry", testParsesCorrectCount(input, 1))
+
+	input = `
+		<PackageReference 
+			Include="FluentAssertions" 
+			Version="5.4.1" />`
+	t.Run("Single entry, multiline", testParsesCorrectCount(input, 1))
+
 	input = `
 		<PackageReference Include="foo" Version="1.0.0" />
 		<PackageReference Include="bar" Version="2.0.0" />`
 	t.Run("Two entries", testParsesCorrectCount(input, 2))
+
 	input = `
 		<ItemGroup>
 			<PackageReference Include="FluentAssertions" Version="5.4.1" />
@@ -35,9 +58,16 @@ func TestParsesCorrectCount(t *testing.T) {
 			<PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
 		</ItemGroup>`
 	t.Run("Whole ItemGroup", testParsesCorrectCount(input, 5))
+
 	input = `erence Include="FluentAssertions" Version="5.4.1" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />`
 	t.Run("Partial XML", testParsesCorrectCount(input, 1))
+
+	input = `
+		<ItemGroup>
+    		<PackageReference Update="NETStandard.Library" Version="2.0.1" />
+		</ItemGroup>`
+	t.Run("No package name", testParsesCorrectCount(input, 0))
 	//TODO
 	// input = `<PackageReference Include="Microsoft.NET.Test.Sdk">
 	// 	<Version>15.8.0</Version>
